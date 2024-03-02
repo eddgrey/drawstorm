@@ -25,7 +25,12 @@ export default function TeamSwitcher() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open}>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full max-w-xs"
+        >
           <Users className="h-5 w-5 mr-2" />
           {teams.find((team) => team.id === activeTeam)?.name}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
