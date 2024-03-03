@@ -14,7 +14,7 @@ interface DashboardPageProps {
 export default function DashboardPage({ searchParams }: DashboardPageProps) {
   const { activeTeam } = useUser();
   return (
-    <div className="bg-purple-200 flex-1 h-[calc(100%-80px)] p-6">
+    <div className="flex-1 h-[calc(100%-80px)] p-6">
       {!activeTeam ? (
         <EmptyProject />
       ) : (

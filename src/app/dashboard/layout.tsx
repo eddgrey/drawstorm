@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="h-full">
       <Sidebar />
       <div className="pl-16 h-full">
-        <div className="flex gap-x-3 h-full bg-green-200">
+        <div className="flex gap-x-3 h-full">
           <OrganizationSidebar />
           <div className="h-full flex-1">
             <Navbar />

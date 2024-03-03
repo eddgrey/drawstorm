@@ -19,7 +19,7 @@ export default function OrganizationSidebar() {
   const favorites = searchParams.get("favorites");
 
   return (
-    <div className="bg-red-200 hidden lg:flex flex-col space-y-6 w-56 pl-5 pt-5">
+    <div className="hidden lg:flex flex-col space-y-6 w-56 pl-5 pt-5">
       <Link href="/">
         <div className="flex items-center gap-x-2">
           <Image src="/logo.svg" alt="logo" height={60} width={60} />
