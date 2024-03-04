@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { UserContextProvider } from "@/context/user-context";
 import { Toaster } from "@/components/ui/sonner";
+import ModalProvider from "@/providers/modal-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={cn("h-full", inter.className)}>
         <UserContextProvider>
           <Toaster />
+          <ModalProvider />
           <main className="h-full min-h-screen">{children}</main>
         </UserContextProvider>
       </body>

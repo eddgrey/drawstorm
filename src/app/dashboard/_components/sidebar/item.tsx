@@ -1,6 +1,6 @@
 "use client";
 
-import { Hint } from "@/components/ui/hint";
+import { Hint } from "@/components/hint";
 import { useUser } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import Image from "next/image";

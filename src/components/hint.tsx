@@ -3,7 +3,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./tooltip";
+} from "./ui/tooltip";
 
 export interface HintProps {
   label: string;
