@@ -2,21 +2,21 @@
   {
     "id": "b786ec72-71fe-415c-9a58-82c9269e304c",
     "name": "Jhon Cooper",
-    "avatarUrl": ""
-  },
-  {
-    "id": "ee986373-f954-4e45-8f79-37bca003be53",
-    "name": "Lucy Nelson",
-    "avatarUrl": ""
-  },
-  {
-    "id": "bb2ee63f-9011-4c1e-904b-35ccae539aa5",
-    "name": "Ashley Williams",
-    "avatarUrl": ""
+    "avatarUrl": "/avatars/1"
   },
   {
     "id": "cfc143b9-013b-4e08-a091-7288c17595f9",
     "name": "Dave Miller",
-    "avatarUrl": ""
+    "avatarUrl": "/avatars/2"
+  },
+  {
+    "id": "ee986373-f954-4e45-8f79-37bca003be53",
+    "name": "Lucy Nelson",
+    "avatarUrl": "/avatars/3"
+  },
+  {
+    "id": "bb2ee63f-9011-4c1e-904b-35ccae539aa5",
+    "name": "Ashley Williams",
+    "avatarUrl": "/avatars/4"
   }
 ]

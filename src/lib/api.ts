@@ -30,6 +30,10 @@ export async function getBoardByID(id: string) {
   return boards.filter((board) => board.id === id)[0] || null;
 }
 
-export async function getTeamsByUserId(userId: string) {
-  // TODO
+export async function getTeamIdsByUserId(userId: string) {
+  const teams = await fetchTeams();
+
+  return teams
+    .filter((team) => team.members.includes(userId))
+    .map((team) => team.id);
 }

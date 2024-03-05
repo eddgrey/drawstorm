@@ -2,11 +2,13 @@
   {
     "id": "91dccfc6-a003-430d-9db3-127afbec1702",
     "name": "FrontEnd",
-    "imageUrl": ""
+    "imageUrl": "",
+    "members": ["b786ec72-71fe-415c-9a58-82c9269e304c"]
   },
   {
     "id": "7ef9217a-7f75-49c7-8a58-892815a60e97",
     "name": "BackEnd",
-    "imageUrl": ""
+    "imageUrl": "",
+    "members": ["b786ec72-71fe-415c-9a58-82c9269e304c"]
   }
 ]

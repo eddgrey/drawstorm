@@ -49,6 +49,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     const newTeam: Team = {
       id: getRandomId(),
       name,
+      members: [],
     };
     setTeams(teams ? [...teams, newTeam] : [newTeam]);
   };

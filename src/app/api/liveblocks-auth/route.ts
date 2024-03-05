@@ -1,4 +1,4 @@
-import { fetchBoards, getBoardByID } from "@/lib/api";
+import { getBoardByID, getTeamIdsByUserId } from "@/lib/api";
 import { Liveblocks } from "@liveblocks/node";
 
 const liveblocks = new Liveblocks({
@@ -7,22 +7,24 @@ const liveblocks = new Liveblocks({
 });
 
 export async function POST(request: Request) {
-  const authorization = { id: "91dccfc6-a003-430d-9db3-127afbec1702" };
+  //   console.log(request.url);
+  const { room } = await request.json();
+  // TODO: Get current user
   const user: User = {
     id: "b786ec72-71fe-415c-9a58-82c9269e304c",
     name: "Jhon",
     avatarUrl: "",
   };
-
-  if (!authorization || !user) {
-    return new Response("Unauthorized", { status: 403 });
-  }
-
-  const { room } = await request.json();
-
   const board = await getBoardByID(room);
 
-  if (board?.teamId !== authorization.id) {
+  if (!board) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  const teams = await getTeamIdsByUserId(user.id);
+  const isAuthorized = teams.includes(board.teamId);
+
+  if (!isAuthorized) {
     return new Response("Unauthorized", { status: 403 });
   }
 
@@ -31,8 +33,6 @@ export async function POST(request: Request) {
     picture: user.avatarUrl,
   };
 
-  //   console.log({ userInfo });
-
   const session = liveblocks.prepareSession(user.id, { userInfo });
 
   if (room) {
@@ -40,6 +40,5 @@ export async function POST(request: Request) {
   }
 
   const { status, body } = await session.authorize();
-  //   console.log({ status, body }, "ALLOWED");
   return new Response(body, { status });
 }
