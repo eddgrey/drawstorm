@@ -2,7 +2,7 @@
 
 import InviteButton from "./invite-button";
 import SearchInput from "./search-input";
-import TeamSwitcher from "./team-switcher";
+import TeamSwitcher from "../team-switcher";
 import UserButton from "./user-button";
 
 export default function Navbar() {

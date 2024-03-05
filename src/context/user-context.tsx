@@ -1,60 +1,104 @@
 "use client";
 
-import { getRandomBoardImage } from "@/lib/utils";
-import { ReactNode, createContext, useContext, useState } from "react";
+import { fetchBoards, fetchTeams } from "@/lib/api";
+import { getRandomId } from "@/lib/utils";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface UserContextData {
-  teams: Team[];
-  boards: Board[];
-  activeTeam: string;
-  addTeam: (team: Team) => void;
+  currentUser: User;
+  teams: Team[] | null;
+  boards: Board[] | null;
+  setBoards: Dispatch<SetStateAction<Board[] | null>>;
+  activeTeam: string | null;
+  createTeam: (name: string) => void;
   addBoard: (board: Board) => void;
+  renameBoard: (boardId: string, newTitle: string) => void;
   selectTeam: (id: string) => void;
-  getBoardsByProjectId: (projectId: string) => Board[];
+  getBoardsByTeamId: (teamId: string) => Board[] | null;
 }
 
 const UserContext = createContext<UserContextData | undefined>(undefined);
 
 export function UserContextProvider({ children }: { children: ReactNode }) {
-  const initialValues: Team[] = [
-    {
-      id: "1",
-      name: "FrontEnd",
-    },
-    {
-      id: "2",
-      name: "BackEnd",
-    },
-  ];
-  const [teams, setTeams] = useState(initialValues);
-  const [activeTeam, setActiveTeam] = useState(teams[0].id);
-  const addTeam = (team: Team) => setTeams([...teams, team]);
-  const selectTeam = (id: string) => setActiveTeam(id);
+  const [currentUser, setCurrentUser] = useState<User>({
+    id: "b786ec72-71fe-415c-9a58-82c9269e304c",
+    name: "Jhon Cooper",
+  });
 
-  // boards
+  const [teams, setTeams] = useState<Team[] | null>(null);
 
-  const [boards, setBoards] = useState<Board[]>([]);
+  useEffect(() => {
+    fetchTeams().then((data) => {
+      setTeams(data);
+    });
+  }, []);
 
-  const addBoard = (board: Board) => {
-    const randomImageUrl = getRandomBoardImage();
+  const [activeTeam, setActiveTeam] = useState<string | null>(
+    teams ? teams[0].id : null
+  );
 
-    setBoards([...boards, { ...board, imageUrl: randomImageUrl }]);
+  const createTeam = (name: string) => {
+    const newTeam: Team = {
+      id: getRandomId(),
+      name,
+    };
+    setTeams(teams ? [...teams, newTeam] : [newTeam]);
   };
 
-  const getBoardsByProjectId = (projectId: string) => {
-    return boards.filter((board) => board.projectId === projectId);
+  const selectTeam = (id: string) =>
+    setActiveTeam(id === activeTeam ? null : id);
+
+  // boards
+  const [boards, setBoards] = useState<Board[] | null>(null);
+
+  useEffect(() => {
+    fetchBoards().then((data) => {
+      setBoards(data);
+    });
+  }, []);
+
+  const addBoard = (board: Board) => {
+    setBoards(boards ? [...boards, board] : [board]);
+  };
+
+  const renameBoard = (boardId: string, newTitle: string) => {
+    setBoards(
+      boards!.map((board) => {
+        if (board.id === boardId) {
+          return { ...board, title: newTitle };
+        }
+        return board;
+      })
+    );
+  };
+
+  const getBoardsByTeamId = (teamId: string) => {
+    if (!boards) return null;
+
+    return boards.filter((board) => board.teamId === teamId);
   };
 
   return (
     <UserContext.Provider
       value={{
+        currentUser,
         teams,
-        addTeam,
+        createTeam,
         activeTeam,
         selectTeam,
         boards,
+        setBoards,
         addBoard,
-        getBoardsByProjectId,
+        renameBoard,
+        getBoardsByTeamId,
       }}
     >
       {children}

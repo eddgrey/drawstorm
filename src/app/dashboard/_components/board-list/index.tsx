@@ -1,26 +1,32 @@
 "use client";
 
-import { useUser } from "@/context/user-context";
 import EmptyBoards from "./empty-boards";
 import EmptyFavorites from "./empty-favorites";
 import EmptySearch from "./empty-search";
 import BoardCard from "../board-card";
 import NewBoardButton from "../new-board-button";
 import BoardCardSkeleton from "../board-card/skeleton";
+import { useEffect, useState } from "react";
+import { fetchBoards } from "@/lib/api";
+import { useUser } from "@/context/user-context";
 
 interface BoardListProps {
-  projectId: string;
+  teamId: string;
   query: {
     search?: string;
     favorites?: string;
   };
 }
 
-export default function BoardList({ projectId, query }: BoardListProps) {
-  const { getBoardsByProjectId } = useUser();
+export default function BoardList({ teamId, query }: BoardListProps) {
+  const { boards } = useUser();
+  const [teamBoards, setTeamBoards] = useState<Board[] | null>(null);
 
-  const data = getBoardsByProjectId(projectId);
-  const isLoading = false;
+  useEffect(() => {
+    setTeamBoards(boards?.filter((board) => board.teamId === teamId) || null);
+  }, [teamId, boards]);
+
+  const isLoading = teamBoards === null;
 
   if (isLoading) {
     return (
@@ -29,7 +35,7 @@ export default function BoardList({ projectId, query }: BoardListProps) {
           {query.favorites ? "Favorite boards" : "Team Boards"}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
-          <NewBoardButton projectId="" disabled />
+          <NewBoardButton teamId="" disabled />
           <BoardCardSkeleton />
           <BoardCardSkeleton />
           <BoardCardSkeleton />
@@ -39,15 +45,15 @@ export default function BoardList({ projectId, query }: BoardListProps) {
     );
   }
 
-  if (!data?.length && query.search) {
+  if (!teamBoards?.length && query.search) {
     return <EmptySearch />;
   }
 
-  if (!data?.length && query.favorites) {
+  if (!teamBoards?.length && query.favorites) {
     return <EmptyFavorites />;
   }
 
-  if (!data?.length) {
+  if (!teamBoards?.length) {
     return <EmptyBoards />;
   }
 
@@ -57,8 +63,8 @@ export default function BoardList({ projectId, query }: BoardListProps) {
         {query.favorites ? "Favorite boards" : "Team Boards"}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
-        <NewBoardButton projectId="" />
-        {data.map((board) => (
+        <NewBoardButton teamId="" />
+        {teamBoards.map((board) => (
           <BoardCard key={board.id} board={board} />
         ))}
       </div>

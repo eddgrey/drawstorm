@@ -1,8 +1,8 @@
 "use client";
 
 import { useUser } from "@/context/user-context";
-import EmptyProject from "./_components/board-list/empty-project";
 import BoardList from "./_components/board-list";
+import EmtpyTeam from "./_components/board-list/empty-team";
 
 interface DashboardPageProps {
   searchParams: {
@@ -16,9 +16,9 @@ export default function DashboardPage({ searchParams }: DashboardPageProps) {
   return (
     <div className="flex-1 h-[calc(100%-80px)] p-6">
       {!activeTeam ? (
-        <EmptyProject />
+        <EmtpyTeam />
       ) : (
-        <BoardList projectId={activeTeam} query={searchParams} />
+        <BoardList teamId={activeTeam} query={searchParams} />
       )}
     </div>
   );

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "91038867-4ab0-4bd8-b575-e426aaa1358d",
+    "title": "Demo",
+    "teamId": "91dccfc6-a003-430d-9db3-127afbec1702",
+    "authorId": "b786ec72-71fe-415c-9a58-82c9269e304c",
+    "authorName": "Jhon Cooper",
+    "imageUrl": "/placeholders/1.svg",
+    "createdAt": "2024-02-29T18:55:49.878Z",
+    "isFavorite": false
+  },
+  {
+    "id": "f1f8ba78-2919-4d7a-8d38-853adf20481a",
+    "title": "Landing Page",
+    "teamId": "91dccfc6-a003-430d-9db3-127afbec1702",
+    "authorId": "bb2ee63f-9011-4c1e-904b-35ccae539aa5",
+    "authorName": "Ashley Williams",
+    "imageUrl": "/placeholders/4.svg",
+    "createdAt": "2024-03-03T18:55:49.878Z",
+    "isFavorite": false
+  },
+  {
+    "id": "1cac2a41-3f74-49e7-8e80-f7e0230986ca",
+    "title": "Dashboard",
+    "teamId": "91dccfc6-a003-430d-9db3-127afbec1702",
+    "authorId": "cfc143b9-013b-4e08-a091-7288c17595f9",
+    "authorName": "Dave Miller",
+    "imageUrl": "/placeholders/6.svg",
+    "createdAt": "2024-03-03T18:55:49.878Z",
+    "isFavorite": false
+  }
+]

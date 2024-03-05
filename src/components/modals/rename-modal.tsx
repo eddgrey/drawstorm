@@ -14,22 +14,20 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { useUser } from "@/context/user-context";
 
 export default function RenameModal() {
   const { isOpen, onClose, initialValues } = useRenameModal();
   const [title, setTitle] = useState(initialValues.title);
+  const { renameBoard } = useUser();
 
   const pending = false;
 
   const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    // TODO: Call API
-
-    //   .then(() => {
-    //     toast.success("Board renamed");
-    //     onClose();
-    //   })
-    //   .catch(() => toast.error("Failed to rename board"));
+    renameBoard(initialValues.id, title);
+    toast.success("Board renamed");
+    onClose();
   };
 
   useEffect(() => {
@@ -58,7 +56,7 @@ export default function RenameModal() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button disabled={pending} type="submit">
+            <Button type="submit" disabled={pending}>
               Save
             </Button>
           </DialogFooter>

@@ -1,3 +1,11 @@
+type Collection = "teams" | "boards";
+
+type User = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+};
+
 type Team = {
   id: string;
   name: string;
@@ -7,7 +15,7 @@ type Team = {
 type Board = {
   id: string;
   title: string;
-  projectId: string;
+  teamId: string;
   authorId: string;
   authorName: string;
   imageUrl: string;

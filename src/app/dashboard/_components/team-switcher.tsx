@@ -32,7 +32,9 @@ export default function TeamSwitcher() {
           className="w-full max-w-xs"
         >
           <Users className="h-5 w-5 mr-2" />
-          {teams.find((team) => team.id === activeTeam)?.name}
+          {teams && activeTeam
+            ? teams.find((team) => team.id === activeTeam)?.name
+            : "Select a team"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -40,26 +42,28 @@ export default function TeamSwitcher() {
         <Command>
           <CommandInput placeholder="Search team" />
           <CommandEmpty>No team found.</CommandEmpty>
-          <CommandGroup>
-            {teams.map(({ id, name }) => (
-              <CommandItem
-                key={id}
-                value={id}
-                onSelect={(currentTeam) => {
-                  selectTeam(currentTeam);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    activeTeam === id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {teams ? (
+            <CommandGroup>
+              {teams.map(({ id, name }) => (
+                <CommandItem
+                  key={id}
+                  value={id}
+                  onSelect={(value) => {
+                    selectTeam(value);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      activeTeam === id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ) : null}
         </Command>
       </PopoverContent>
     </Popover>

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import ConfirmModal from "./confirm-modal";
 import { Button } from "./ui/button";
 import { useRenameModal } from "@/store/use-rename-modal";
+import { useUser } from "@/context/user-context";
 
 interface ActionsProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export default function Actions({
   sideOffset,
 }: ActionsProps) {
   const { onOpen } = useRenameModal();
+  const { boards, setBoards } = useUser();
   const onCopyLink = () => {
     navigator.clipboard
       .writeText(`${window.location.origin}/board/${id}`)
@@ -39,9 +41,9 @@ export default function Actions({
   const pending = false;
 
   const onDelete = () => {
-    console.log("delete");
-    // .then(() => toast.success("Board deleted"))
-    //   .catch(() => toast.error("Failed to delete board"));
+    if (!boards) return;
+    setBoards(boards?.filter((board) => board.id !== id));
+    toast.success("Board deleted");
   };
 
   return (

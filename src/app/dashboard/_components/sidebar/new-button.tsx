@@ -14,13 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUser } from "@/context/user-context";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 
 export default function NewButton() {
-  const { addTeam } = useUser();
+  const [value, setValue] = useState("");
+  const { createTeam } = useUser();
 
-  const handleAddTeam = () => {
-    const name = "fjdal";
-    addTeam({ id: "fa", name });
+  const handleCreateTeam = () => {
+    createTeam(value);
   };
 
   return (
@@ -39,14 +40,21 @@ export default function NewButton() {
           <DialogTitle className="text-2xl">Create New Team</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-8">
-          <p>img</p>
-
-          <div className="space-y-2">
+          <form onSubmit={handleCreateTeam} className="space-y-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" type="text" placeholder="my-new-team" />
-          </div>
+            <Input
+              id="name"
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              required
+              minLength={2}
+              maxLength={24}
+              placeholder="my-new-team"
+            />
+          </form>
           <DialogClose asChild>
-            <Button className="self-end" onClick={handleAddTeam}>
+            <Button type="submit" className="self-end">
               Create Team
             </Button>
           </DialogClose>

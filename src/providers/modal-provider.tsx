@@ -1,5 +1,6 @@
 "use client";
 
+import CreateTeamModal from "@/components/modals/create-team-modal";
 import RenameModal from "@/components/modals/rename-modal";
 import { useEffect, useState } from "react";
 
@@ -17,6 +18,7 @@ export default function ModalProvider() {
   return (
     <>
       <RenameModal />
+      <CreateTeamModal />
     </>
   );
 }

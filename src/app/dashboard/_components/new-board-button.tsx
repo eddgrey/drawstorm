@@ -1,34 +1,34 @@
 "use client";
 
 import { useUser } from "@/context/user-context";
-import { cn } from "@/lib/utils";
+import { cn, getRandomBoardImage, getRandomId } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 interface NewBoardButtonProps {
-  projectId: string;
+  teamId: string;
   disabled?: boolean;
 }
 
 export default function NewBoardButton({
-  projectId,
+  teamId,
   disabled,
 }: NewBoardButtonProps) {
   const pending = false;
-  const { activeTeam, addBoard } = useUser();
+  const { currentUser, activeTeam, addBoard } = useUser();
 
   const handleAddBoard = () => {
     if (!activeTeam) return;
 
     addBoard({
-      id: "1",
-      authorId: "1",
-      authorName: "user",
-      projectId: activeTeam,
+      id: getRandomId(),
+      authorId: currentUser.id,
+      authorName: currentUser.name,
+      teamId: activeTeam,
       title: "Untitled",
       createdAt: new Date().toISOString(),
       isFavorite: false,
-      imageUrl: "",
+      imageUrl: getRandomBoardImage(),
     });
 
     toast.success("Board created successfully!");

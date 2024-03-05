@@ -1,25 +1,25 @@
 "use client";
 
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
-import Image from "next/image";
+import { getRandomBoardImage, getRandomId } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function EmptyBoards() {
-  const { addBoard, activeTeam } = useUser();
+  const { currentUser, addBoard, activeTeam } = useUser();
 
   const handleAddBoard = () => {
     if (!activeTeam) return;
-
     addBoard({
-      id: "1",
-      authorId: "1",
-      authorName: "user",
-      projectId: activeTeam,
+      id: getRandomId(),
+      authorId: currentUser.id,
+      authorName: currentUser.name,
+      teamId: activeTeam,
       title: "Untitled",
       createdAt: new Date().toISOString(),
       isFavorite: false,
-      imageUrl: "",
+      imageUrl: getRandomBoardImage(),
     });
 
     toast.success("Board created successfully!");
@@ -31,8 +31,8 @@ export default function EmptyBoards() {
       <Image
         src="/empty-boards.svg"
         alt="Empty Board"
-        width={140}
-        height={140}
+        width={110}
+        height={110}
       />
       <h2 className="text-2xl font-semibold mt-6">Create your first board!</h2>
       <p className="text-muted-foreground text-sm mt-2">
