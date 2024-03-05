@@ -8,17 +8,32 @@ import { formatDistanceToNow } from "date-fns";
 import Footer from "./footer";
 import Actions from "@/components/actions";
 import { MoreHorizontal } from "lucide-react";
+import { useUser } from "@/context/user-context";
 
 interface BoardCardProps {
   board: Board;
 }
 
 export default function BoardCard({ board }: BoardCardProps) {
+  const { boards, setBoards, currentUser } = useUser();
   const { id, title, authorId, authorName, createdAt, isFavorite } = board;
-  const authorLabel = authorId === "userId" ? "You" : authorName;
+  const authorLabel = currentUser.id === authorId ? "You" : authorName;
   const createdAtLabel = formatDistanceToNow(createdAt, {
     addSuffix: true,
   });
+
+  const toogleFavorite = () => {
+    if (!boards) return;
+
+    setBoards(
+      boards.map((board) => {
+        if (board.id === id) {
+          return { ...board, isFavorite: !board.isFavorite };
+        }
+        return board;
+      })
+    );
+  };
 
   return (
     <Link href={`/board/${id}`}>
@@ -41,7 +56,7 @@ export default function BoardCard({ board }: BoardCardProps) {
           title={title}
           authorLabel={authorLabel}
           createdAtLabel={createdAtLabel}
-          onClick={() => {}}
+          onClick={toogleFavorite}
           isFavorite={isFavorite}
           disabled={false}
         />

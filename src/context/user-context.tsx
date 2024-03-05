@@ -86,6 +86,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     return boards.filter((board) => board.teamId === teamId);
   };
 
+  const [favoriteBoards, setFavoriteBoards] = useState<string[]>([]);
+
   return (
     <UserContext.Provider
       value={{
