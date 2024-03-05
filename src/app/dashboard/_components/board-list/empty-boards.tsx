@@ -5,14 +5,18 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
 import { getRandomBoardImage, getRandomId } from "@/lib/utils";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function EmptyBoards() {
+  const router = useRouter();
   const { currentUser, addBoard, activeTeam } = useUser();
 
   const handleAddBoard = () => {
     if (!activeTeam) return;
+
+    const id = getRandomId();
     addBoard({
-      id: getRandomId(),
+      id,
       authorId: currentUser.id,
       authorName: currentUser.name,
       teamId: activeTeam,
@@ -23,7 +27,7 @@ export default function EmptyBoards() {
     });
 
     toast.success("Board created successfully!");
-    //TODO: Redirect to board/{id}
+    router.push(`/board/${id}`);
   };
 
   return (

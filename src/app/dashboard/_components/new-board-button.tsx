@@ -3,6 +3,7 @@
 import { useUser } from "@/context/user-context";
 import { cn, getRandomBoardImage, getRandomId } from "@/lib/utils";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface NewBoardButtonProps {
@@ -14,14 +15,16 @@ export default function NewBoardButton({
   teamId,
   disabled,
 }: NewBoardButtonProps) {
+  const router = useRouter();
   const pending = false;
   const { currentUser, activeTeam, addBoard } = useUser();
 
   const handleAddBoard = () => {
     if (!activeTeam) return;
 
+    const id = getRandomId();
     addBoard({
-      id: getRandomId(),
+      id,
       authorId: currentUser.id,
       authorName: currentUser.name,
       teamId: activeTeam,
@@ -32,7 +35,7 @@ export default function NewBoardButton({
     });
 
     toast.success("Board created successfully!");
-    //TODO: Redirect to board/{id}
+    router.push(`/board/${id}`);
   };
 
   return (
