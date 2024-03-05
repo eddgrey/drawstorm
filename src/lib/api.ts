@@ -23,3 +23,13 @@ export async function fetchBoards() {
 
   return data;
 }
+
+export async function getBoardByID(id: string) {
+  const boards = await fetchBoards();
+
+  return boards.filter((board) => board.id === id)[0] || null;
+}
+
+export async function getTeamsByUserId(userId: string) {
+  // TODO
+}
