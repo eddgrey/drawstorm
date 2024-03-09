@@ -1,8 +1,11 @@
 "use client";
 
-import { useOthersConnectionIds } from "@/liveblocks.config";
+import { useOthersConnectionIds, useOthersMapped } from "@/liveblocks.config";
 import { memo } from "react";
 import Cursor from "./cursor";
+import { colorToCss } from "@/lib/utils";
+import Path from "./layers/path";
+import { shallow } from "@liveblocks/client";
 
 function Cursors() {
   const ids = useOthersConnectionIds();
@@ -16,10 +19,40 @@ function Cursors() {
   );
 }
 
+function Drafts() {
+  const others = useOthersMapped(
+    (other) => ({
+      pencilDraft: other.presence.pencilDraft,
+      penColor: other.presence.penColor,
+    }),
+    shallow
+  );
+
+  return (
+    <>
+      {others.map(([key, other]) => {
+        if (other.pencilDraft) {
+          return (
+            <Path
+              key={key}
+              x={0}
+              y={0}
+              points={other.pencilDraft}
+              fill={other.penColor ? colorToCss(other.penColor) : "#000"}
+            />
+          );
+        }
+
+        return null;
+      })}
+    </>
+  );
+}
+
 export default memo(function CursorsPresence() {
   return (
     <>
-      {/* TODO: Draft pencil*/}
+      <Drafts />
       <Cursors />
     </>
   );
