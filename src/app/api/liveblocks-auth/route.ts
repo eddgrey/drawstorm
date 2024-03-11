@@ -2,8 +2,7 @@ import { getBoardByID, getTeamIdsByUserId } from "@/lib/api";
 import { Liveblocks } from "@liveblocks/node";
 
 const liveblocks = new Liveblocks({
-  secret:
-    "sk_dev_TxQNBQWZ8pXAv9kV2lIyxBuJbhsdjmIiQ-hCvwRzWSuF5iZvNFbuEtB6AkCAVxHq",
+  secret: process.env.LIVEBLOCKS_SECRET_KEY!,
 });
 
 export async function POST(request: Request) {
