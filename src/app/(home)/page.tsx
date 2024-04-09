@@ -1,9 +1,6 @@
 import Navbar from "./_components/navbar";
 import UseCases from "./_components/card";
-import Section from "./_components/section";
-import { ChevronDown } from "lucide-react";
 import Steps from "./_components/steps";
-import Image from "next/image";
 import FAQ from "./_components/faq";
 import Reviews from "./_components/reviews";
 import Demo from "./_components/demo";
