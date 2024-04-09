@@ -12,19 +12,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUser } from "@/context/user-context";
 import { FormEventHandler, useState } from "react";
 import { useCreateTeamModal } from "@/store/use-create-team-modal";
 import { toast } from "sonner";
+import { useUser } from "@/context/user-context";
 
 export default function CreateTeamModal() {
   const { isOpen, onClose, initialValues } = useCreateTeamModal();
   const [title, setTitle] = useState(initialValues.title);
-  const { createTeam } = useUser();
+  const { createNewTeam } = useUser();
 
-  const handleCreateTeam: FormEventHandler<HTMLFormElement> = (e) => {
+  const handleCreateTeam: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    createTeam(title);
+
+    await createNewTeam(title.trim());
     toast.success("Team created successfully");
     setTitle("");
     onClose();

@@ -1,6 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { Plus } from "lucide-react";
+
+import { createTeam } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
+import { Hint } from "@/components/hint";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogClose,
@@ -9,19 +16,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Hint } from "@/components/hint";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useUser } from "@/context/user-context";
-import { Plus } from "lucide-react";
-import { useState } from "react";
 
 export default function NewButton() {
   const [value, setValue] = useState("");
-  const { createTeam } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateTeam = () => {
-    createTeam(value);
+  const handleCreateTeam = async () => {
+    console.log("NEW button sidebar");
+    setIsLoading(true);
+    if (value.length > 2) {
+      await createTeam(value.trim());
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -47,14 +53,14 @@ export default function NewButton() {
               type="text"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              required
               minLength={2}
               maxLength={24}
+              required
               placeholder="my-new-team"
             />
           </form>
           <DialogClose asChild>
-            <Button type="submit" className="self-end">
+            <Button type="submit" disabled={isLoading} className="self-end">
               Create Team
             </Button>
           </DialogClose>

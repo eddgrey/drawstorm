@@ -1,53 +1,28 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
-import { Poppins } from "next/font/google";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Poppins } from "next/font/google";
+
+import { useEffect } from "react";
+
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/context/user-context";
+import { cn } from "@/lib/utils";
 
 const font = Poppins({ subsets: ["latin"], weight: "600" });
 
 export default function LoginPage() {
-  const supabase = createClient();
   const router = useRouter();
 
-  const [isPending, setIsPending] = useState(false);
+  const { currentUser, auth } = useUser();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (data.user) {
-        router.replace("/");
-      }
-    };
-    getUser();
-  }, [router, supabase]);
-
-  const loginWithGithub = async () => {
-    setIsPending(true);
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-      },
-    });
-    setIsPending(false);
-  };
-
-  const loginAsGuest = async () => {
-    setIsPending(true);
-
-    const { data, error } = await supabase.auth.signInAnonymously();
-
-    if (data) {
-      router.push("/");
+    if (currentUser) {
+      router.replace("/dashboard");
     }
-    setIsPending(false);
-  };
+  }, [currentUser, router]);
 
   return (
     <div className="bg-gray-50 w-full h-full flex justify-center items-center relative px-12">
@@ -72,8 +47,8 @@ export default function LoginPage() {
         </div>
         <form className="space-y-6">
           <button
-            onClick={loginAsGuest}
-            disabled={isPending}
+            onClick={auth.loginAsGuest}
+            disabled={auth.isPending}
             className="w-full bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 shadow-md shadow-indigo-500 px-8 lg:px-12 py-2 rounded-lg text-white text-lg font-semibold flex justify-center items-center"
           >
             Login as Guest
@@ -83,8 +58,8 @@ export default function LoginPage() {
 
           <div className="flex flex-col md:flex-row gap-4 mb-8">
             <Button
-              onClick={loginWithGithub}
-              disabled={isPending}
+              onClick={auth.loginWithGithub}
+              disabled={auth.isPending}
               className="flex-1 gap-2"
               variant="outline"
             >

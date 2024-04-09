@@ -10,8 +10,8 @@ export default function List() {
 
   return (
     <ul className="space-y-4">
-      {teams.map(({ id, name }) => (
-        <Item key={id} id={id} name={name} imageUrl="" />
+      {teams.map(({ id, title }) => (
+        <Item key={id} id={id} name={title} imageUrl="" />
       ))}
     </ul>
   );

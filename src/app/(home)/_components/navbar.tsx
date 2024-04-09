@@ -1,14 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Poppins } from "next/font/google";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { Poppins } from "next/font/google";
+
+import { cn } from "@/lib/utils";
+import { useUser } from "@/context/user-context";
+import { Button } from "@/components/ui/button";
 import MobileMenu from "./mobile-menu";
-import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 const font = Poppins({ subsets: ["latin"], weight: "600" });
 
@@ -20,24 +19,7 @@ const links = [
 ];
 
 export default function Navbar() {
-  const [user, setUser] = useState(false);
-  const supabase = createClient();
-  const router = useRouter();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        setUser(true);
-      }
-    };
-    getUser();
-  }, [supabase]);
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(false);
-  };
+  const { currentUser, auth } = useUser();
 
   return (
     <div className="fixed z-50 w-full h-20 border-b-2 border-gray-200 bg-white flex items-center justify-center">
@@ -71,11 +53,11 @@ export default function Navbar() {
         </div>
 
         <div className="hidden lg:flex gap-x-4">
-          {user ? (
+          {currentUser ? (
             <>
               <Button
                 variant="secondary"
-                onClick={signOut}
+                onClick={auth.signOut}
                 size="lg"
                 className="bg-indigo-100 hover:bg-indigo-50 text-indigo-500 font-semibold text-base"
               >

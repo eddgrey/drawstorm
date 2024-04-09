@@ -8,6 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useUser } from "@/context/user-context";
 import { ChevronRight, Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -20,6 +21,7 @@ const links = [
 ];
 
 export default function MobileMenu() {
+  const { currentUser, auth } = useUser();
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -48,22 +50,45 @@ export default function MobileMenu() {
         </div>
         <div className="flex-1" />
         <div className="flex flex-col gap-4 px-8">
-          <Button
-            variant="secondary"
-            size="lg"
-            className="bg-indigo-100 hover:bg-indigo-50 text-indigo-500 font-semibold text-base"
-            asChild
-          >
-            <Link href="/login">Login</Link>
-          </Button>
+          {currentUser ? (
+            <>
+              <Button
+                variant="secondary"
+                onClick={auth.signOut}
+                size="lg"
+                className="bg-indigo-100 hover:bg-indigo-50 text-indigo-500 font-semibold text-base"
+              >
+                Logout
+              </Button>
 
-          <Button
-            size="lg"
-            className="bg-indigo-600 hover:bg-indigo-700 font-bold text-base"
-            asChild
-          >
-            <Link href="/dashboard">Get started</Link>
-          </Button>
+              <Button
+                size="lg"
+                className="bg-indigo-600 hover:bg-indigo-700 font-bold text-base"
+                asChild
+              >
+                <Link href="/dashboard">Go Dashboard</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                size="lg"
+                className="bg-indigo-100 hover:bg-indigo-50 text-indigo-500 font-semibold text-base"
+                asChild
+              >
+                <Link href="/login">Login</Link>
+              </Button>
+
+              <Button
+                size="lg"
+                className="bg-indigo-600 hover:bg-indigo-700 font-bold text-base"
+                asChild
+              >
+                <Link href="/dashboard">Get started</Link>
+              </Button>
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>

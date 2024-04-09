@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,22 +11,21 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Hint } from "@/components/hint";
-import { useRouter } from "next/navigation";
+import { useUser } from "@/context/user-context";
 
 export default function UserButton() {
-  const router = useRouter();
-
-  const handleSignOut = () => {
-    router.push("/");
-  };
+  const { currentUser, auth } = useUser();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage
+            src={currentUser ? currentUser.avatar_url : "/avatars/guest.png"}
+          />
+          <AvatarFallback>
+            {currentUser ? currentUser.name.slice(0, 2).toUpperCase() : "??"}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -34,7 +35,7 @@ export default function UserButton() {
         <DropdownMenuItem>Team</DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuItem className="focus:bg-transparent">
-          <Button size="sm" className="w-full" onClick={handleSignOut}>
+          <Button size="sm" className="w-full" onClick={auth.signOut}>
             Sign out
           </Button>
         </DropdownMenuItem>

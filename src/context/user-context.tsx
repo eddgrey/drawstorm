@@ -1,24 +1,33 @@
 "use client";
 
 import { fetchBoards, fetchTeams } from "@/lib/api";
+import { createClient } from "@/lib/supabase/client";
+import { createTeam, getUser, getUserTeams } from "@/lib/supabase/queries";
 import { getRandomId } from "@/lib/utils";
 import {
   Dispatch,
   ReactNode,
   SetStateAction,
   createContext,
+  use,
   useContext,
   useEffect,
   useState,
 } from "react";
 
 interface UserContextData {
-  currentUser: User;
+  auth: {
+    loginWithGithub: () => Promise<void>;
+    loginAsGuest: () => Promise<void>;
+    signOut: () => Promise<void>;
+    isPending: boolean;
+  };
+  currentUser: User | null;
   teams: Team[] | null;
+  createNewTeam: (title: string) => Promise<void>;
   boards: Board[] | null;
   setBoards: Dispatch<SetStateAction<Board[] | null>>;
   activeTeam: string | null;
-  createTeam: (name: string) => void;
   addBoard: (board: Board) => void;
   renameBoard: (boardId: string, newTitle: string) => void;
   selectTeam: (id: string) => void;
@@ -28,30 +37,73 @@ interface UserContextData {
 const UserContext = createContext<UserContextData | undefined>(undefined);
 
 export function UserContextProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User>({
-    id: "b786ec72-71fe-415c-9a58-82c9269e304c",
-    name: "Jhon Cooper",
-  });
+  const supabase = createClient();
 
-  const [teams, setTeams] = useState<Team[] | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthPending, setIsAuthPending] = useState(false);
 
   useEffect(() => {
-    fetchTeams().then((data) => {
-      setTeams(data);
+    getUser().then((user) => setCurrentUser(user));
+  }, []);
+
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") {
+        // handle initial session
+      } else if (event === "SIGNED_IN") {
+        console.log("Sign in");
+        if (session) {
+          getUser().then((user) => setCurrentUser(user));
+        }
+      } else if (event === "SIGNED_OUT") {
+        console.log("Sign out");
+        setCurrentUser(null);
+      }
+    });
+    return () => data.subscription.unsubscribe();
+  }, [supabase]);
+
+  const loginWithGithub = async () => {
+    setIsAuthPending(true);
+    const { data } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+  };
+
+  const loginAsGuest = async () => {
+    setIsAuthPending(true);
+    const { data, error } = await supabase.auth.signInAnonymously();
+
+    if (error) {
+      setIsAuthPending(false);
+    }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const [teams, setTeams] = useState<Team[] | null>(null);
+  const [activeTeam, setActiveTeam] = useState<string | null>(null);
+
+  useEffect(() => {
+    getUserTeams().then((teams) => {
+      setTeams(teams);
+      if (teams && teams.length > 0) {
+        setActiveTeam(teams[0].id);
+      }
     });
   }, []);
 
-  const [activeTeam, setActiveTeam] = useState<string | null>(
-    teams ? teams[0].id : null
-  );
+  const createNewTeam = async (title: string) => {
+    const newTeam = await createTeam(title);
 
-  const createTeam = (name: string) => {
-    const newTeam: Team = {
-      id: getRandomId(),
-      name,
-      members: [],
-    };
-    setTeams(teams ? [...teams, newTeam] : [newTeam]);
+    if (newTeam) {
+      setTeams(teams ? [...teams, newTeam] : [newTeam]);
+    }
   };
 
   const selectTeam = (id: string) =>
@@ -93,8 +145,14 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     <UserContext.Provider
       value={{
         currentUser,
+        auth: {
+          loginWithGithub,
+          loginAsGuest,
+          signOut,
+          isPending: isAuthPending,
+        },
         teams,
-        createTeam,
+        createNewTeam,
         activeTeam,
         selectTeam,
         boards,
