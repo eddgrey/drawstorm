@@ -7,11 +7,11 @@ import {
   getBoardsByTeamId,
   getUserTeams,
   createBoard,
+  getUserRequests,
+  getUserBoards,
 } from "@/lib/supabase/queries";
 import {
-  Dispatch,
   ReactNode,
-  SetStateAction,
   createContext,
   useContext,
   useEffect,
@@ -29,10 +29,10 @@ interface UserContextData {
   teams: Team[] | null;
   createNewTeam: (title: string) => Promise<void>;
   boards: Board[] | null;
-  refreshBoards: () => Promise<void>;
   activeTeam: string | null;
   createNewBoard: () => Promise<string | null>;
   selectTeam: (id: string) => void;
+  requests: Requests | null;
 }
 
 const UserContext = createContext<UserContextData | undefined>(undefined);
@@ -49,15 +49,9 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "INITIAL_SESSION") {
-        // handle initial session
-      } else if (event === "SIGNED_IN") {
-        console.log("Sign in");
-        if (session) {
-          getUser().then((user) => setCurrentUser(user));
-        }
+      if (event === "SIGNED_IN" && session) {
+        getUser().then((user) => setCurrentUser(user));
       } else if (event === "SIGNED_OUT") {
-        console.log("Sign out");
         setCurrentUser(null);
       }
     });
@@ -99,6 +93,26 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("newTeamMember")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "team_members" },
+        (payload) => {
+          getUserTeams().then((teams) => {
+            setTeams(teams);
+            if (teams && teams.length > 0) {
+              setActiveTeam(teams[0].id);
+            }
+          });
+        }
+      )
+      .subscribe();
+
+    // return () => channel.;
+  }, [supabase]);
+
   const createNewTeam = async (title: string) => {
     const newTeam = await createTeam(title);
 
@@ -114,29 +128,56 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [boards, setBoards] = useState<Board[] | null>(null);
 
   useEffect(() => {
-    if (activeTeam) {
-      getBoardsByTeamId(activeTeam).then((boards) => setBoards(boards));
-    }
-  }, [activeTeam]);
-
-  const createNewBoard = async () => {
-    if (!activeTeam) return null;
-
-    const newBoard = await createBoard(activeTeam);
-
-    if (newBoard) {
-      setBoards(boards ? [...boards, newBoard] : [newBoard]);
-      return newBoard.id;
-    }
-
-    return null;
-  };
+    getUserBoards().then((result) => setBoards(result));
+  }, []);
 
   const refreshBoards = async () => {
     if (activeTeam) {
       getBoardsByTeamId(activeTeam).then((boards) => setBoards(boards));
     }
   };
+  useEffect(() => {
+    const channel = supabase
+      .channel("boardChanges")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "boards" },
+        (payload) => {
+          getUserBoards().then((result) => setBoards(result));
+        }
+      )
+      .subscribe();
+
+    // return () => channel.;
+  }, [supabase]);
+
+  const createNewBoard = async () => {
+    if (!activeTeam) return null;
+    const newBoard = await createBoard(activeTeam);
+
+    return newBoard ? newBoard.id : null;
+  };
+
+  const [requests, setRequests] = useState<Requests | null>(null);
+
+  useEffect(() => {
+    getUserRequests().then((result) => setRequests(result));
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("requestChanges")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "team_join_requests" },
+        (payload) => {
+          getUserRequests().then((result) => setRequests(result));
+        }
+      )
+      .subscribe();
+
+    // return () => channel.;
+  }, [supabase]);
 
   return (
     <UserContext.Provider
@@ -154,7 +195,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         selectTeam,
         boards,
         createNewBoard,
-        refreshBoards,
+        requests,
       }}
     >
       {children}

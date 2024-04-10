@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@/context/user-context";
 import {
   getBoardsBySearch,
+  getBoardsByTeamId,
   getUserFavoriteBoards,
 } from "@/lib/supabase/queries";
 
@@ -22,29 +23,29 @@ interface BoardListProps {
 }
 
 export default function BoardList({ teamId, query }: BoardListProps) {
-  const { boards } = useUser();
+  const { boards, activeTeam } = useUser();
   const [teamBoards, setTeamBoards] = useState<Board[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setTeamBoards(null);
     setIsLoading(true);
     if (query.search && boards) {
-      // const regex = new RegExp(`\\b${query.search}\\b`, "i");
-      // const searchedBoards = boards.filter((board) => regex.test(board.title));
-
-      // console.log(searchedBoards);
-      // setTeamBoards(searchedBoards ?? null);
-      getBoardsBySearch(teamId, query.search).then((boards) =>
-        setTeamBoards(boards)
-      );
+      getBoardsBySearch(teamId, query.search).then((boards) => {
+        setTeamBoards(boards);
+        setIsLoading(false);
+      });
     } else if (query.favorites) {
-      getUserFavoriteBoards(teamId).then((boards) => setTeamBoards(boards));
+      getUserFavoriteBoards(teamId).then((boards) => {
+        setTeamBoards(boards);
+        setIsLoading(false);
+      });
     } else {
-      setTeamBoards(boards);
+      getBoardsByTeamId(teamId).then((boards) => {
+        setTeamBoards(boards);
+        setIsLoading(false);
+      });
     }
-    setIsLoading(false);
-  }, [query, teamId, boards]);
+  }, [query, teamId, boards, activeTeam]);
 
   if (isLoading) {
     return (

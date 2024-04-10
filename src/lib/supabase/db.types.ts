@@ -94,6 +94,46 @@ export type Database = {
           },
         ]
       }
+      team_join_requests: {
+        Row: {
+          owner_team_id: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          owner_team_id: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          owner_team_id?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_team_join_requests_owner_team_id_fkey"
+            columns: ["owner_team_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_team_join_requests_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_team_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           team_id: string

@@ -73,6 +73,44 @@ export async function getUserTeams() {
   return teams;
 }
 
+export async function getUserBoards() {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: teamIds } = await supabase
+    .from("team_members")
+    .select()
+    .eq("user_id", data.user.id);
+
+  if (!teamIds) return null;
+
+  const boards: Board[] = [];
+
+  for (const teamId of teamIds) {
+    const { data: team } = await supabase
+      .from("teams")
+      .select()
+      .eq("id", teamId)
+      .single();
+
+    if (team) {
+      const { data: boards } = await supabase
+        .from("boards")
+        .select("*")
+        .eq("team_id", teamId);
+
+      if (boards) {
+        boards.concat(boards);
+      }
+    }
+  }
+
+  return boards;
+}
+
 export async function getBoardsByTeamId(teamId: string) {
   const { data, error } = await supabase.auth.getUser();
 
@@ -229,4 +267,192 @@ export async function toogleFavoriteBoard(boardId: string, teamId: string) {
       .select()
       .single();
   }
+}
+
+export async function getTeamMembers(teamId: string) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: members } = await supabase
+    .from("team_members")
+    .select("user_id")
+    .eq("team_id", teamId);
+
+  return members;
+}
+
+export async function createTeamJoinRequest(teamId: string) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const teamMembers = await getTeamMembers(teamId);
+  const isMember = !!teamMembers?.find(
+    (member) => member.user_id === data.user.id
+  );
+
+  if (isMember) {
+    return "You're already on the team";
+  }
+
+  const { data: team } = await supabase
+    .from("teams")
+    .select("*")
+    .eq("id", teamId)
+    .single();
+
+  if (!team) {
+    return null;
+  }
+
+  const { data: requestAlreadySent } = await supabase
+    .from("team_join_requests")
+    .select()
+    .eq("user_id", data.user.id)
+    .eq("team_id", teamId)
+    .eq("owner_team_id", team.owner_id)
+    .single();
+
+  if (requestAlreadySent) {
+    return "You've already sent request";
+  }
+
+  const { data: request } = await supabase
+    .from("team_join_requests")
+    .insert({
+      user_id: data.user.id,
+      team_id: teamId,
+      owner_team_id: team.owner_id,
+    })
+    .select()
+    .single();
+
+  if (request) {
+    return "Request sent";
+  }
+
+  return null;
+}
+
+export async function getOwnerTeam(teamId: string) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: team } = await supabase
+    .from("teams")
+    .select("owner_id")
+    .eq("id", teamId)
+    .single();
+
+  return team?.owner_id;
+}
+
+export async function getUserRequests() {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: requestIds } = await supabase
+    .from("team_join_requests")
+    .select("*")
+    .eq("owner_team_id", data.user.id);
+
+  if (!requestIds) {
+    return null;
+  }
+
+  const requests: Requests = {};
+
+  for (const requestId of requestIds) {
+    const { data: team } = await supabase
+      .from("teams")
+      .select("*")
+      .eq("id", requestId.team_id)
+      .single();
+    const { data: user } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", requestId.user_id)
+      .single();
+
+    if (team && user) {
+      if (Object.hasOwn(requests, team.id)) {
+        requests[team.id].push({
+          teamName: team.title,
+          userId: user.id,
+          userName: user.name,
+          userAvatarUrl: user.avatar_url,
+        });
+      } else {
+        requests[team.id] = [
+          {
+            teamName: team.title,
+            userId: user.id,
+            userName: user.name,
+            userAvatarUrl: user.avatar_url,
+          },
+        ];
+      }
+    }
+  }
+
+  return requests;
+}
+
+export async function acceptRequest(teamId: string, userId: string) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: request } = await supabase
+    .from("team_members")
+    .insert({ team_id: teamId, user_id: userId })
+    .select()
+    .single();
+
+  if (!request) {
+    return null;
+  }
+
+  const { data: requestDeleted } = await supabase
+    .from("team_join_requests")
+    .delete()
+    .eq("team_id", teamId)
+    .eq("user_id", userId)
+    .eq("owner_team_id", data.user.id)
+    .select()
+    .single();
+
+  return requestDeleted;
+}
+
+export async function rejectRequest(teamId: string, userId: string) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: requestDeleted } = await supabase
+    .from("team_join_requests")
+    .delete()
+    .eq("team_id", teamId)
+    .eq("user_id", userId)
+    .eq("owner_team_id", data.user.id)
+    .select()
+    .single();
+
+  return requestDeleted;
 }

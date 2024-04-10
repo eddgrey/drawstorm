@@ -31,7 +31,6 @@ export default function Actions({
   sideOffset,
 }: ActionsProps) {
   const { onOpen } = useRenameModal();
-  const { boards, refreshBoards } = useUser();
   const onCopyLink = () => {
     navigator.clipboard
       .writeText(`${window.location.origin}/board/${id}`)
@@ -46,7 +45,6 @@ export default function Actions({
     if (error) {
       toast.error("Something went wrong");
     } else {
-      refreshBoards();
       toast.success("Board deleted");
     }
   };

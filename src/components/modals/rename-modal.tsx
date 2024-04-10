@@ -16,9 +16,7 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { renameBoard } from "@/lib/supabase/queries";
 import { useUser } from "@/context/user-context";
-
 export default function RenameModal() {
-  const { refreshBoards } = useUser();
   const { isOpen, onClose, initialValues } = useRenameModal();
   const [title, setTitle] = useState(initialValues.title);
 
@@ -28,10 +26,8 @@ export default function RenameModal() {
     e.preventDefault();
     const board = await renameBoard(initialValues.id, title);
     if (board) {
-      refreshBoards().then(() => {
-        toast.success("Board renamed");
-        onClose();
-      });
+      toast.success("Board renamed");
+      onClose();
     } else {
       toast.error("Something went wrong");
     }
