@@ -33,7 +33,7 @@ export default function TeamSwitcher() {
         >
           <Users className="h-5 w-5 mr-2" />
           {teams && activeTeam
-            ? teams.find((team) => team.id === activeTeam)?.name
+            ? teams.find((team) => team.id === activeTeam)?.title
             : "Select a team"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -44,7 +44,7 @@ export default function TeamSwitcher() {
           <CommandEmpty>No team found.</CommandEmpty>
           {teams ? (
             <CommandGroup>
-              {teams.map(({ id, name }) => (
+              {teams.map(({ id, title }) => (
                 <CommandItem
                   key={id}
                   value={id}
@@ -59,7 +59,7 @@ export default function TeamSwitcher() {
                       activeTeam === id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {name}
+                  {title}
                 </CommandItem>
               ))}
             </CommandGroup>

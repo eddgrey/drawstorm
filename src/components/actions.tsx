@@ -13,6 +13,7 @@ import ConfirmModal from "./confirm-modal";
 import { Button } from "./ui/button";
 import { useRenameModal } from "@/store/use-rename-modal";
 import { useUser } from "@/context/user-context";
+import { deleteBoard } from "@/lib/supabase/queries";
 
 interface ActionsProps {
   children: React.ReactNode;
@@ -30,7 +31,7 @@ export default function Actions({
   sideOffset,
 }: ActionsProps) {
   const { onOpen } = useRenameModal();
-  const { boards, setBoards } = useUser();
+  const { boards, refreshBoards } = useUser();
   const onCopyLink = () => {
     navigator.clipboard
       .writeText(`${window.location.origin}/board/${id}`)
@@ -40,10 +41,14 @@ export default function Actions({
 
   const pending = false;
 
-  const onDelete = () => {
-    if (!boards) return;
-    setBoards(boards?.filter((board) => board.id !== id));
-    toast.success("Board deleted");
+  const onDelete = async () => {
+    const error = await deleteBoard(id);
+    if (error) {
+      toast.error("Something went wrong");
+    } else {
+      refreshBoards();
+      toast.success("Board deleted");
+    }
   };
 
   return (
@@ -74,7 +79,7 @@ export default function Actions({
         >
           <Button
             variant="ghost"
-            onClick={onDelete}
+            // onClick={onDelete}
             className="p-3 cursor-pointer text-sm w-full justify-start font-normal"
           >
             <Trash className="h-4 w-4 mr-2" />

@@ -3,31 +3,21 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
-import { getRandomBoardImage, getRandomId } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function EmptyBoards() {
   const router = useRouter();
-  const { currentUser, addBoard, activeTeam } = useUser();
+  const { createNewBoard } = useUser();
 
-  const handleAddBoard = () => {
-    if (!activeTeam) return;
-
-    const id = getRandomId();
-    addBoard({
-      id,
-      authorId: currentUser.id,
-      authorName: currentUser.name,
-      teamId: activeTeam,
-      title: "Untitled",
-      createdAt: new Date().toISOString(),
-      isFavorite: false,
-      imageUrl: getRandomBoardImage(),
-    });
-
-    toast.success("Board created successfully!");
-    router.push(`/board/${id}`);
+  const handleAddBoard = async () => {
+    const id = await createNewBoard();
+    if (id) {
+      toast.success("Board created successfully!");
+      router.push(`/board/${id}`);
+    } else {
+      toast.error("Something went wrong");
+    }
   };
 
   return (

@@ -8,6 +8,10 @@ import NewBoardButton from "../new-board-button";
 import BoardCardSkeleton from "../board-card/skeleton";
 import { useEffect, useState } from "react";
 import { useUser } from "@/context/user-context";
+import {
+  getBoardsBySearch,
+  getUserFavoriteBoards,
+} from "@/lib/supabase/queries";
 
 interface BoardListProps {
   teamId: string;
@@ -20,30 +24,27 @@ interface BoardListProps {
 export default function BoardList({ teamId, query }: BoardListProps) {
   const { boards } = useUser();
   const [teamBoards, setTeamBoards] = useState<Board[] | null>(null);
-
-  const getBoardsToDisplay = () => {
-    if (!boards) return null;
-
-    if (query.search) {
-      const regex = new RegExp(`\\b${query.search}\\b`, "i");
-      const searchedBoards = boards.filter((board) => regex.test(board.title));
-      return searchedBoards ?? null;
-    }
-
-    if (query.favorites) {
-      return boards.filter(
-        (board) => board.teamId === teamId && board.isFavorite
-      );
-    }
-
-    return boards.filter((board) => board.teamId === teamId);
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setTeamBoards(getBoardsToDisplay);
-  }, [query, teamId, boards]);
+    setTeamBoards(null);
+    setIsLoading(true);
+    if (query.search && boards) {
+      // const regex = new RegExp(`\\b${query.search}\\b`, "i");
+      // const searchedBoards = boards.filter((board) => regex.test(board.title));
 
-  const isLoading = teamBoards === null;
+      // console.log(searchedBoards);
+      // setTeamBoards(searchedBoards ?? null);
+      getBoardsBySearch(teamId, query.search).then((boards) =>
+        setTeamBoards(boards)
+      );
+    } else if (query.favorites) {
+      getUserFavoriteBoards(teamId).then((boards) => setTeamBoards(boards));
+    } else {
+      setTeamBoards(boards);
+    }
+    setIsLoading(false);
+  }, [query, teamId, boards]);
 
   if (isLoading) {
     return (

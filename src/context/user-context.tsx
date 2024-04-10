@@ -1,15 +1,18 @@
 "use client";
 
-import { fetchBoards, fetchTeams } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
-import { createTeam, getUser, getUserTeams } from "@/lib/supabase/queries";
-import { getRandomId } from "@/lib/utils";
+import {
+  createTeam,
+  getUser,
+  getBoardsByTeamId,
+  getUserTeams,
+  createBoard,
+} from "@/lib/supabase/queries";
 import {
   Dispatch,
   ReactNode,
   SetStateAction,
   createContext,
-  use,
   useContext,
   useEffect,
   useState,
@@ -26,12 +29,10 @@ interface UserContextData {
   teams: Team[] | null;
   createNewTeam: (title: string) => Promise<void>;
   boards: Board[] | null;
-  setBoards: Dispatch<SetStateAction<Board[] | null>>;
+  refreshBoards: () => Promise<void>;
   activeTeam: string | null;
-  addBoard: (board: Board) => void;
-  renameBoard: (boardId: string, newTitle: string) => void;
+  createNewBoard: () => Promise<string | null>;
   selectTeam: (id: string) => void;
-  getBoardsByTeamId: (teamId: string) => Board[] | null;
 }
 
 const UserContext = createContext<UserContextData | undefined>(undefined);
@@ -113,33 +114,29 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [boards, setBoards] = useState<Board[] | null>(null);
 
   useEffect(() => {
-    fetchBoards().then((data) => {
-      setBoards(data);
-    });
-  }, []);
+    if (activeTeam) {
+      getBoardsByTeamId(activeTeam).then((boards) => setBoards(boards));
+    }
+  }, [activeTeam]);
 
-  const addBoard = (board: Board) => {
-    setBoards(boards ? [...boards, board] : [board]);
+  const createNewBoard = async () => {
+    if (!activeTeam) return null;
+
+    const newBoard = await createBoard(activeTeam);
+
+    if (newBoard) {
+      setBoards(boards ? [...boards, newBoard] : [newBoard]);
+      return newBoard.id;
+    }
+
+    return null;
   };
 
-  const renameBoard = (boardId: string, newTitle: string) => {
-    setBoards(
-      boards!.map((board) => {
-        if (board.id === boardId) {
-          return { ...board, title: newTitle };
-        }
-        return board;
-      })
-    );
+  const refreshBoards = async () => {
+    if (activeTeam) {
+      getBoardsByTeamId(activeTeam).then((boards) => setBoards(boards));
+    }
   };
-
-  const getBoardsByTeamId = (teamId: string) => {
-    if (!boards) return null;
-
-    return boards.filter((board) => board.teamId === teamId);
-  };
-
-  const [favoriteBoards, setFavoriteBoards] = useState<string[]>([]);
 
   return (
     <UserContext.Provider
@@ -156,10 +153,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         activeTeam,
         selectTeam,
         boards,
-        setBoards,
-        addBoard,
-        renameBoard,
-        getBoardsByTeamId,
+        createNewBoard,
+        refreshBoards,
       }}
     >
       {children}

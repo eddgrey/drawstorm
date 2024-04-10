@@ -9,30 +9,38 @@ import Footer from "./footer";
 import Actions from "@/components/actions";
 import { MoreHorizontal } from "lucide-react";
 import { useUser } from "@/context/user-context";
+import { getBoardFavorite, toogleFavoriteBoard } from "@/lib/supabase/queries";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface BoardCardProps {
   board: Board;
 }
 
 export default function BoardCard({ board }: BoardCardProps) {
-  const { boards, setBoards, currentUser } = useUser();
-  const { id, title, authorId, authorName, createdAt, isFavorite } = board;
-  const authorLabel = currentUser.id === authorId ? "You" : authorName;
-  const createdAtLabel = formatDistanceToNow(createdAt, {
+  const { boards, currentUser } = useUser();
+  const { id, team_id, title, author_id, author_name, created_at } = board;
+
+  const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    getBoardFavorite(id, team_id).then((board) => setIsFavorite(!!board));
+  }, [id, team_id]);
+
+  const authorLabel = currentUser?.id === author_id ? "You" : author_name;
+  const createdAtLabel = formatDistanceToNow(created_at, {
     addSuffix: true,
   });
 
-  const toogleFavorite = () => {
+  const toogleFavorite = async () => {
     if (!boards) return;
-
-    setBoards(
-      boards.map((board) => {
-        if (board.id === id) {
-          return { ...board, isFavorite: !board.isFavorite };
-        }
-        return board;
-      })
-    );
+    setIsLoading(true);
+    await toogleFavoriteBoard(id, team_id);
+    getBoardFavorite(id, team_id).then((board) => setIsFavorite(!!board));
+    setIsLoading(false);
+    router.refresh();
   };
 
   return (
@@ -40,7 +48,7 @@ export default function BoardCard({ board }: BoardCardProps) {
       <div className="group aspect-[100/127] border rounded-lg flex flex-col justify-between overflow-hidden">
         <div className="relative flex-1 bg-blue-100">
           <Image
-            src={board.imageUrl}
+            src={board.image_url}
             alt={title}
             className="object-fill"
             fill
@@ -58,7 +66,7 @@ export default function BoardCard({ board }: BoardCardProps) {
           createdAtLabel={createdAtLabel}
           onClick={toogleFavorite}
           isFavorite={isFavorite}
-          disabled={false}
+          disabled={isLoading}
         />
       </div>
     </Link>

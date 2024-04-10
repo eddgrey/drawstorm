@@ -9,6 +9,91 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      boards: {
+        Row: {
+          author_id: string
+          author_name: string
+          created_at: string
+          id: string
+          image_url: string
+          team_id: string
+          title: string
+        }
+        Insert: {
+          author_id: string
+          author_name: string
+          created_at?: string
+          id?: string
+          image_url: string
+          team_id: string
+          title: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          team_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_boards_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_boards_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorite_boards: {
+        Row: {
+          board_id: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          board_id: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          board_id?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_favorite_boards_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_favorite_boards_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_favorite_boards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           team_id: string

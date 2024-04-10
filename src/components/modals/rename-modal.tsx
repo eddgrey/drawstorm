@@ -14,20 +14,27 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { renameBoard } from "@/lib/supabase/queries";
 import { useUser } from "@/context/user-context";
 
 export default function RenameModal() {
+  const { refreshBoards } = useUser();
   const { isOpen, onClose, initialValues } = useRenameModal();
   const [title, setTitle] = useState(initialValues.title);
-  const { renameBoard } = useUser();
 
   const pending = false;
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    renameBoard(initialValues.id, title);
-    toast.success("Board renamed");
-    onClose();
+    const board = await renameBoard(initialValues.id, title);
+    if (board) {
+      refreshBoards().then(() => {
+        toast.success("Board renamed");
+        onClose();
+      });
+    } else {
+      toast.error("Something went wrong");
+    }
   };
 
   useEffect(() => {
