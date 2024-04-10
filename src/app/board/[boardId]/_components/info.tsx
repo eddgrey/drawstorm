@@ -1,13 +1,11 @@
 "use client";
 
-import Actions from "@/components/actions";
 import { Hint } from "@/components/hint";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
-import { getBoardByID } from "@/lib/api";
+import { getBoardById } from "@/lib/supabase/queries";
 import { cn } from "@/lib/utils";
 import { useRenameModal } from "@/store/use-rename-modal";
-import { Menu } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,15 +25,12 @@ function TabSeparator() {
 }
 
 export function Info({ boardId }: InfoProps) {
-  const { onOpen } = useRenameModal();
   const { boards } = useUser();
+  const { onOpen } = useRenameModal();
   const [board, setBoard] = useState<Board | null>(null);
 
   useEffect(() => {
-    if (boards) {
-      const board = boards?.filter((board) => board.id === boardId);
-      setBoard(board[0]);
-    }
+    getBoardById(boardId).then((board) => setBoard(board));
   }, [boardId, boards]);
 
   if (!board) return <InfoSkeleton />;
@@ -73,7 +68,7 @@ export function Info({ boardId }: InfoProps) {
         </Button>
       </Hint>
       <TabSeparator />
-      <Actions id={board.id} title={board.title}>
+      {/* <Actions id={board.id} title={board.title}>
         <div>
           <Hint label="Main menu" side="bottom" sideOffset={10}>
             <Button size="icon" variant="board">
@@ -81,7 +76,7 @@ export function Info({ boardId }: InfoProps) {
             </Button>
           </Hint>
         </div>
-      </Actions>
+      </Actions> */}
     </div>
   );
 }

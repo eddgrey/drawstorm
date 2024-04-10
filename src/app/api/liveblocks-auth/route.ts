@@ -1,4 +1,4 @@
-import { getBoardByID, getTeamIdsByUserId } from "@/lib/api";
+import { createClient } from "@/lib/supabase/server";
 import { Liveblocks } from "@liveblocks/node";
 
 const liveblocks = new Liveblocks({
@@ -6,38 +6,53 @@ const liveblocks = new Liveblocks({
 });
 
 export async function POST(request: Request) {
-  //   console.log(request.url);
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user.id) {
+    return new Response("Unauthorized", { status: 403 });
+  }
   const { room } = await request.json();
-  // TODO: Get current user
-  const user: User = {
-    id: "b786ec72-71fe-415c-9a58-82c9269e304c",
-    name: "Jhon",
-    avatarUrl: "",
-  };
-  const board = await getBoardByID(room);
+
+  const { data: board } = await supabase
+    .from("boards")
+    .select()
+    .eq("id", room)
+    .single();
 
   if (!board) {
     return new Response("Not found", { status: 404 });
   }
 
-  const teams = await getTeamIdsByUserId(user.id);
-  const isAuthorized = teams.includes(board.teamId);
+  const { data: isTeamMember } = await supabase
+    .from("team_members")
+    .select()
+    .eq("user_id", data.user.id)
+    .eq("team_id", board.team_id)
+    .single();
 
-  if (!isAuthorized) {
+  if (!isTeamMember) {
     return new Response("Unauthorized", { status: 403 });
   }
 
+  const { data: userProfile } = await supabase
+    .from("users")
+    .select()
+    .eq("id", data.user.id)
+    .single();
+
   const userInfo = {
-    name: user.name,
-    picture: user.avatarUrl,
+    name: userProfile?.name || "Anonymous",
+    picture: userProfile?.avatar_url || "/avatars/guest.png",
   };
 
-  const session = liveblocks.prepareSession(user.id, { userInfo });
+  const session = liveblocks.prepareSession(data.user.id, { userInfo });
 
   if (room) {
     session.allow(room, session.FULL_ACCESS);
   }
 
   const { status, body } = await session.authorize();
+
   return new Response(body, { status });
 }

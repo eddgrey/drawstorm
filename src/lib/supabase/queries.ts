@@ -111,6 +111,21 @@ export async function getUserBoards() {
   return boards;
 }
 
+export async function getBoardById(boardId: string) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+  const { data: board } = await supabase
+    .from("boards")
+    .select("*")
+    .eq("id", boardId)
+    .single();
+
+  return board;
+}
+
 export async function getBoardsByTeamId(teamId: string) {
   const { data, error } = await supabase.auth.getUser();
 
