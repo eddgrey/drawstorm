@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/client";
 import {
   createTeam,
   getUser,
-  getBoardsByTeamId,
   getUserTeams,
   createBoard,
   getUserRequests,

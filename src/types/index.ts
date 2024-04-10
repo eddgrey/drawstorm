@@ -1,1 +1,0 @@
-type Collection = "teams" | "boards";
