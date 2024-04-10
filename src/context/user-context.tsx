@@ -62,7 +62,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     const { data } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `https://next-drawstorm.vercel.app/auth/callback`,
       },
     });
   };
