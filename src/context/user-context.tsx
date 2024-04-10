@@ -56,7 +56,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
       }
     });
     return () => data.subscription.unsubscribe();
-  }, [supabase]);
+  }, []);
 
   const loginWithGithub = async () => {
     setIsAuthPending(true);
@@ -110,8 +110,10 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
       )
       .subscribe();
 
-    // return () => channel.;
-  }, [supabase]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const createNewTeam = async (title: string) => {
     const newTeam = await createTeam(title);
@@ -131,11 +133,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     getUserBoards().then((result) => setBoards(result));
   }, []);
 
-  const refreshBoards = async () => {
-    if (activeTeam) {
-      getBoardsByTeamId(activeTeam).then((boards) => setBoards(boards));
-    }
-  };
   useEffect(() => {
     const channel = supabase
       .channel("boardChanges")
@@ -148,8 +145,10 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
       )
       .subscribe();
 
-    // return () => channel.;
-  }, [supabase]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const createNewBoard = async () => {
     if (!activeTeam) return null;
@@ -176,8 +175,10 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
       )
       .subscribe();
 
-    // return () => channel.;
-  }, [supabase]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <UserContext.Provider
